@@ -382,7 +382,8 @@ in
         ++ lib.optional config.services.colord.enable pkgs.colord-kde
         ++ lib.optional config.services.hardware.bolt.enable pkgs.plasma5Packages.plasma-thunderbolt
         ++ lib.optionals config.services.samba.enable [ kdenetwork-filesharing pkgs.samba ]
-        ++ lib.optional config.services.xserver.wacom.enable pkgs.wacomtablet;
+        ++ lib.optional config.services.xserver.wacom.enable pkgs.wacomtablet
+        ++ lib.optional config.services.flatpak.enable flatpak-kcm;
 
       environment.pathsToLink = [
         # FIXME: modules should link subdirs of `/share` rather than relying on this
