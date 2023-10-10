@@ -15,5 +15,10 @@ version : builtins.getAttr version {
       url = "https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.0%2Bcu118.zip";
       hash = "sha256-Dpw9kQdA1NI9EOT7JBKwQP4wZT6lizcnKKTQ8WVJCZc=";
     };
+    x86_64-linux-rocm = {
+      name = "libtorch-cxx11-abi-shared-with-deps-2.0.0-rocm5.4.2.zip";
+      url = "https://download.pytorch.org/libtorch/rocm5.4.2/libtorch-cxx11-abi-shared-with-deps-2.0.0%2Brocm5.4.2.zip";
+      hash = "sha256-bes/2G56OShUYrd2OFEs/Ss/GWe0igg8/g6xYLRrX1w=";
+    };
   };
 }

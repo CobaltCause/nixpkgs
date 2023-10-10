@@ -3,12 +3,14 @@
 , fetchzip
 , lib
 , libcxx
+, zlib
 
 , addOpenGLRunpath
 , patchelf
 , fixDarwinDylibNames
 
-, cudaSupport
+, cudaSupport ? false
+, rocmSupport ? false
 }:
 
 let
@@ -18,7 +20,17 @@ let
   # that the CUDA toolkit for `passthru.tests` is still
   # up-to-date.
   version = "2.0.0";
-  device = if cudaSupport then "cuda" else "cpu";
+  device =
+    if cudaSupport && rocmSupport then
+      throw "cudaSupport and rocmSupport are mutually exclusive for libtorch-bin"
+    else
+      if cudaSupport then
+        "cuda"
+      else
+        if rocmSupport then
+          "rocm"
+        else
+          "cpu";
   srcs = import ./binary-hashes.nix version;
   unavailable = throw "libtorch is not available for this platform";
   libcxx-for-libtorch = if stdenv.hostPlatform.system == "x86_64-darwin" then libcxx else stdenv.cc.cc.lib;
@@ -30,7 +42,7 @@ in stdenv.mkDerivation {
 
   nativeBuildInputs =
     if stdenv.isDarwin then [ fixDarwinDylibNames ]
-    else [ patchelf ] ++ lib.optionals cudaSupport [ addOpenGLRunpath ];
+    else [ patchelf ] ++ lib.optionals (cudaSupport || rocmSupport) [ addOpenGLRunpath ];
 
   dontBuild = true;
   dontConfigure = true;
@@ -57,12 +69,12 @@ in stdenv.mkDerivation {
   '';
 
   postFixup = let
-    rpath = lib.makeLibraryPath [ stdenv.cc.cc.lib ];
+    rpath = lib.makeLibraryPath ([ stdenv.cc.cc.lib ] ++ lib.optionals rocmSupport [ zlib ]);
   in lib.optionalString stdenv.isLinux ''
     find $out/lib -type f \( -name '*.so' -or -name '*.so.*' \) | while read lib; do
       echo "setting rpath for $lib..."
       patchelf --set-rpath "${rpath}:$out/lib" "$lib"
-      ${lib.optionalString cudaSupport ''
+      ${lib.optionalString (cudaSupport || rocmSupport) ''
         addOpenGLRunpath "$lib"
       ''}
     done

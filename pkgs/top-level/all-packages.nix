@@ -4391,6 +4391,10 @@ with pkgs;
     inherit (config) cudaSupport;
   };
 
+  libtorch-rocm-bin = callPackage ../development/libraries/science/math/libtorch/bin.nix {
+    rocmSupport = true;
+  };
+
   tensorflow-lite = callPackage ../development/libraries/science/math/tensorflow-lite { };
 
   tiny-cuda-nn = callPackage ../development/libraries/science/math/tiny-cuda-nn { };
